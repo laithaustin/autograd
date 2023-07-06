@@ -25,7 +25,7 @@ class nnet:
             out = x.dot(self.weights) + self.bias
             return out.relu() if self.activation == 'relu' else out
         
-        def update(self, lr=0.01):
+        def update(self, lr=0.001):
             # update weights and bias
             self.weights.data -= self.weights.grad * lr
             self.bias.data -= self.bias.grad.T.mean() * lr
