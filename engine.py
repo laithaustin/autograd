@@ -27,6 +27,17 @@ class tensor:
             
         out._backward = _backward
         return out
+    
+    def dot(self, other):
+        other = other if isinstance(other, tensor) else tensor(other)
+        out = tensor(np.dot(self.data, other.data), [self, other], True, '@')
+
+        def _backward():
+            self.grad += np.dot(out.grad, other.data.T)
+            other.grad += np.dot(self.data.T, out.grad)
+        
+        out._backward = _backward
+        return out
 
     def __add__(self, other):
         other = other if isinstance(other, tensor) else tensor(other)
@@ -50,8 +61,8 @@ class tensor:
         return out
     
     def relu(self):
-        f = [d if d >= 0 else 0 for d in self.data]
-        out = tensor(f, [self], True, 'relu')
+        f = lambda x: x if x > 0 else 0
+        out = tensor(np.vectorize(f)(self.data), [self], True, 'relu')
 
         def _backward():
             self.grad += out.grad * (out.data > 0)
@@ -115,7 +126,7 @@ class tensor:
                 toBuild.append(v) # this is the key to setting the order so that we add bottom layer to top
         
         build(self)
-        print(toBuild)
+        # print(toBuild)
         self.grad = 1.0
         for node in reversed(toBuild):
             node._backward() # now we can call in topological order
