@@ -60,7 +60,7 @@ class nnet:
         plt.title("Training Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.show()
+        # plt.show()
         plt.savefig("loss.png")
 
 # Create a neural network model and test

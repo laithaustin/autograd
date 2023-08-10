@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import math
 
 # Ideas to work on. Expand functionalities for other functions. Abstract away _backward
 # member functions so that we can just read from a derivatives.yaml file like pytorch. 
@@ -52,11 +53,21 @@ class tensor:
     
     def __pow__(self, val):
         if not isinstance(val, (int, float)):
-            return "exponent must be a float or int"
+            print("exponent must be a float or int")
+            return None
+        
         out = tensor(self.data**val, [self], True, '^')
 
         def _backward():
             self.grad += out.grad * (val * self.data**(val-1))
+        out._backward = _backward
+        return out
+    
+    # support exp e ** tensor 
+    def exp(self):
+        out = tensor(math.e**self.data, [self], True, 'exp')
+        def _backward():
+            self.grad += out.grad * (math.e**self.data)
         out._backward = _backward
         return out
     
@@ -180,7 +191,7 @@ def test1():
     output2.backward()
 
     print(f"Pytorch w1 gradient: {w12._grad}")
-    print(f"Pytroch w2 gradient: {w22._grad}")
+    print(f"Pytorch w2 gradient: {w22._grad}")
 
 # Test 2 will check for exponents, subtraction, and sin
 def test2():
@@ -233,6 +244,6 @@ def test2():
     output2.backward()
 
     print(f"Pytorch w1 gradient: {w12._grad}")
-    print(f"Pytroch w2 gradient: {w22._grad}")
+    print(f"Pytorch w2 gradient: {w22._grad}")
 
 test2()
